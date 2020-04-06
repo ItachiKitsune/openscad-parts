@@ -155,22 +155,44 @@ module flange()
 
 
                 // guy wire holes with fillet.
-                make_ring_of(22,3,0)
+                make_ring_of(connectorOD*.64,3,0)
                 {
                     
                     cylinder(
                         h=Flange_Height+2, 
                         r=Flange_Hole_ID, 
                         center=false);
+                    
+                    translate([0,0,-2])
+                    {
+                        cylinder(
+                            h=4, 
+                            r=Flange_Hole_ID+3, 
+                            r2=Flange_Hole_ID, 
+                            center=false);
 
- 
+                    }
+
+                    translate([0,0,10])
+                    {
+                        cylinder(
+                            h=4, 
+                            r=Flange_Hole_ID, 
+                            r2=Flange_Hole_ID+3, 
+                            center=false);
+
+                    }
+                    
                     
                 }
                 
                 // cut out extra material.
-                make_ring_of(45,3,180)
+                make_ring_of(connectorOD*1.2,3,180)
                 {
-                    cylinder(h=12, r=28, center=false);
+                    cylinder(
+                        h=Flange_Height+2, 
+                        r=connectorOD*.77, 
+                        center=false);
                 }
                 
                 
