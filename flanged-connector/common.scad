@@ -12,3 +12,15 @@ module make_ring_of (radius, count, offsetDeg)
                 children ();
     }
 }
+
+module linear_array(start, offset, count)
+{
+	translate(start)
+	{
+		for (a = [0: count -1])
+		{
+			translate([a*offset[0], a*offset[1], a*offset[2]])
+				children();
+		}
+	}
+}
