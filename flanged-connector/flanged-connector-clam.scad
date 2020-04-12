@@ -9,6 +9,9 @@ include<common.scad>
 //subdivisions. (Higher is smoother.)
 $fn=100;
 
+//0 for connector half, 1 for flange;
+Flange_Or_Connector=0;
+
 
 //Units: mm (Round up)
 Upper_Pipe_OD=22;
@@ -56,81 +59,70 @@ Zip_Tie_Count=5;
 //    adapter_internal_void();
 //}
 
-
-
-difference()
-{
-
-    translate([0,0,-(Connector_Height/2)])
+    
+    
+    if (Flange_Or_Connector==0)
     {
-        union()
+        connector();
+    }
+    if (Flange_Or_Connector==1)
+    {
+        flange();
+    }
+
+
+
+module connector()
+{
+    difference()
+    {
+
+        translate([0,0,-(Connector_Height/2)])
         {
-            cylinder(
-                h=Connector_Height, 
-                r=Lower_Pipe_OD/2 + Connector_Wall_Thickness, 
-                //r2=Upper_Pipe_OD/2 + Connector_Wall_Thickness,
+            union()
+            {
+                cylinder(
+                    h=Connector_Height, 
+                    r=Lower_Pipe_OD/2 + Connector_Wall_Thickness, 
+                    //r2=Upper_Pipe_OD/2 + Connector_Wall_Thickness,
+                    center=false);
+                
+                //translate([0,0,Flange_Position])
+                //{
+                //    flange();
+                //}
+
+
+                translate([0,0,(Connector_Height/2)+(Flange_Height/2)])
+                {
+                    cylinder(
+                    h=Flange_Height, 
+                    r=Lower_Pipe_OD/2 + Connector_Wall_Thickness + (Flange_Height/2), 
+                    //r2=Upper_Pipe_OD/2 + Connector_Wall_Thickness,
+                    center=false);
+                }
+                
+            }
+        }
+
+        translate([0,-(Connector_Height+10)/2,-(Connector_Height+10)/2])
+        {
+            //cube([w,h,d],center)
+            cube([Connector_Height+10, 
+                 Connector_Height+10, 
+                 Connector_Height+10],
                 center=false);
             
-            //translate([0,0,Flange_Position])
-            //{
-            //    flange();
-            //}
-            
         }
-    }
 
-    translate([0,-(Connector_Height+10)/2,-(Connector_Height+10)/2])
-    {
-        //cube([w,h,d],center)
-        cube([Connector_Height+10, 
-             Connector_Height+10, 
-             Connector_Height+10],
-            center=false);
+        zip_tie_notches();
+
+        adapter_internal_void();
         
     }
-
-    zip_tie_notches();
-
-    adapter_internal_void();
-    
 }
 
-w = Lower_Pipe_OD/2 + Connector_Wall_Thickness/2;
 
-
-
-
-module nubs(height, width, c)
-{
-   
-    offset = (Connector_Height / c) - (width/2);
-
-    s = (-Connector_Height/2) + offset;
-    e = (Connector_Height/2) - (offset*2);
-
-    l = e-s;
-    
-    o = (l/(c-1));
-    
-    
-    echo("s:", s, " e:", e, " l:", l, " o:", o);
-    
-    start=[0,0,s];
-    offset=[0,0,o];
-    
-    
-    linear_array(start,offset,c)
-    {   
-        rotate([90,0,90])
-        {
-           cylinder(
-           h=height, 
-           r=width/2, 
-           center=false);
-        }
-    }
-
-}
 
 
 module zip_tie_notches()
@@ -244,11 +236,25 @@ module flange()
             connectorOD = Lower_Pipe_OD + Connector_Wall_Thickness *2;
             //cylinder(h=10, r=30, center=false);
 
-            // Three tab lugs.
-            make_ring_of(connectorOD/2,3,0)
+            union()
             {
-                cylinder(h=Flange_Height, r=connectorOD/3, center=false);
+                cylinder(
+                h=Flange_Height, 
+                r=connectorOD/1, 
+                //r2=Upper_Pipe_OD/2 + Connector_Wall_Thickness,
+                center=false);
+
+
+                // Three tab lugs.
+                make_ring_of(connectorOD*.55,3,0)
+                {
+                    cylinder(
+                        h=Flange_Height, 
+                        r=connectorOD*.58, 
+                        center=false);
+                }
             }
+
 
         
             translate([0,0,-1])
@@ -256,7 +262,7 @@ module flange()
 
 
                 // guy wire holes with fillet.
-                make_ring_of(connectorOD*.64,3,0)
+                make_ring_of(connectorOD*.9,3,0)
                 {
                     
                     cylinder(
@@ -287,14 +293,13 @@ module flange()
                     
                 }
                 
-                // cut out extra material.
-                make_ring_of(connectorOD*1.2,3,180)
-                {
-                    cylinder(
-                        h=Flange_Height+2, 
-                        r=connectorOD*.77, 
-                        center=false);
-                }
+       
+            
+                cylinder(
+                h=Flange_Height+2, 
+                r=connectorOD/2 + .25, 
+                //r2=Upper_Pipe_OD/2 + Connector_Wall_Thickness,
+                center=false);
                 
                 
             }
