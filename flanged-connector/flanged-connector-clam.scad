@@ -69,6 +69,11 @@ Zip_Tie_Count=5;
     {
         flange();
     }
+    if (Flange_Or_Connector==2)
+    {
+        connector();
+        flange();
+    }
 
 
 
